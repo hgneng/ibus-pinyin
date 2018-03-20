@@ -33,6 +33,8 @@
 # 	@PYZY_LIBS@ \
 # 	$(NULL)
 # 
+AM_CFLAGS = -I/usr/include/speech-dispatcher -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+AM_LDADD = -lspeechd -lglib-2.0
 
 libexec_PROGRAMS = ibus-engine-pinyin
 ibus_engine_pinyin_built_c_sources = \
@@ -58,6 +60,7 @@ ibus_engine_pinyin_c_sources = \
 	PYPinyinObserver.cc \
 	PYPinyinProperties.cc \
 	PYPunctEditor.cc \
+	ibusspeech.c \
 	$(NULL)
 ibus_engine_pinyin_h_sources = \
 	PYBopomofoEditor.h \
@@ -115,6 +118,7 @@ ibus_engine_pinyin_CXXFLAGS = \
 	-DGETTEXT_PACKAGE=\"@GETTEXT_PACKAGE@\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DLIBEXECDIR=\"$(libexecdir)\" \
+	$(AM_CFLAGS) \
 	$(NULL)
 
 if HAVE_BOOST
@@ -131,6 +135,7 @@ ibus_engine_pinyin_LDADD = \
 	@IBUS_LIBS@ \
 	@SQLITE_LIBS@ \
 	@PYZY_LIBS@ \
+	$(AM_LDADD) \
 	$(NULL)
 
 if IBUS_BUILD_LUA_EXTENSION

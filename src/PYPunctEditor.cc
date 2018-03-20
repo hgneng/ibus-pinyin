@@ -294,6 +294,7 @@ PunctEditor::moveCursorRight (void)
 {
     if (G_UNLIKELY (m_cursor == m_text.length ()))
         return FALSE;
+    g_message("[hgneng]moveCursorRight: %s", m_text.c_str());
     m_cursor ++;
     updatePunctCandidates (m_text[m_cursor - 1]);
 

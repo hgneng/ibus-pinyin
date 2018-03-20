@@ -26,6 +26,9 @@
 #include "PYHalfFullConverter.h"
 #include "PYPinyinProperties.h"
 
+extern "C" void ibs_init();
+extern "C" void ibs_speak(char *text);
+
 namespace PY {
 
 /* init static members */
@@ -34,6 +37,7 @@ PhoneticEditor::PhoneticEditor (PinyinProperties & props, Config & config)
       m_observer (PinyinObserver(*this)),
       m_lookup_table (m_config.pageSize ())
 {
+	ibs_init();
 }
 
 PhoneticEditor::~PhoneticEditor ()
@@ -210,6 +214,16 @@ void
 PhoneticEditor::updateLookupTableFast (void)
 {
     Editor::updateLookupTableFast (m_lookup_table, TRUE);
+
+    const String &selected_text = m_context->selectedText ();
+    const String &conversion_text = m_context->conversionText ();
+    const String &rest_text = m_context->restText ();
+    const String whole_text = selected_text + conversion_text + rest_text;
+    StaticText preedit_text (whole_text);
+
+    ibs_speak(m_lookup_table.getCandidate(m_lookup_table.cursorPos())->text);
+    g_message("[hgneng]PhoneticEditor::updateLookupTableFast selected_text=%s conversion_text=%s rest_text=%s curpos=%d candidate=%s",
+		    selected_text.c_str(), conversion_text.c_str(), rest_text.c_str(), m_lookup_table.cursorPos(), m_lookup_table.getCandidate(m_lookup_table.cursorPos())->text);
 }
 
 void
@@ -389,18 +403,21 @@ void
 PhoneticEditor::updateInputText (void)
 {
     m_text = m_context->inputText ();
+    g_message("[hgneng]updateInputText: %s", m_text.c_str());
 }
 
 void
 PhoneticEditor::updateCursor (void)
 {
     m_cursor = m_context->cursor ();
+    g_message("[hgneng]updateCursor: cursor=%d", m_cursor);
 }
 
 void
 PhoneticEditor::updateAuxiliaryText (void)
 {
     String text = m_context->auxiliaryText ();
+    g_message("[hgneng]updateAuxiliaryText: %s", text.c_str());
     updateAuxiliaryTextAfter (text);
 
     if (text.empty ()) {
@@ -429,6 +446,9 @@ PhoneticEditor::updatePreeditText (void)
     const String &rest_text = m_context->restText ();
     const String whole_text = selected_text + conversion_text + rest_text;
     StaticText preedit_text (whole_text);
+
+    g_message("[hgneng]PhoneticEditor::updatePreeditText selected_text=%s conversion_text=%s rest_text=%s",
+		    selected_text.c_str(), conversion_text.c_str(), rest_text.c_str());
 
     /* underline */
     preedit_text.appendAttribute (
